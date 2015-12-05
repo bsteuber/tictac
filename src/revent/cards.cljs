@@ -1,33 +1,47 @@
 (ns revent.cards
   (:require [cljs.test     :refer-macros [is]]
             [devcards.core :refer-macros [defcard-rg defcard-doc deftest]]
-            [reagent.ratom :refer-macros [reaction]]
-            [revent.core   :as e :refer [log]]))
+            [revent.core   :as e]))
 
 (enable-console-print!)
 
-(defn inc-handler [{:keys [state]}]
+(defn inc-handler [{:keys [state]} _]
   (swap! state update :counter inc))
 
-(defn plus-handler [{:keys [state]} x]
-  (swap! state update :counter + x))
+(defn inc-n-times-handler [sys {:keys [n]}]
+  (dotimes [_ n]
+    (e/send sys :inc)))
+
+(defn plus-n-handler [{:keys [state]} {:keys [n]}]
+  (swap! state update :counter + n))
 
 (defn counter-query [state]
-  (reaction (:counter @state)))
+  (:counter @state))
 
 (deftest handle
   (let [sys (e/make-system
              :init-state {:counter 0}
-             :handlers {:plus plus-handler
-                        :inc inc-handler})]
-    (e/handle sys [:plus 4])
+             :handlers {:plus plus-n-handler
+                        :inc inc-handler
+                        :inc-n inc-n-times-handler})]
+    (e/send sys :plus {:n 4})
     (is (= @(:state sys)
            {:counter 4}))
-    (e/handle sys [:inc])
+    (e/send sys :inc)
     (is (= @(:state sys)
            {:counter 5}))
     (is (= @(:event-log sys)
-           [[:plus 4] [:inc]]))))
+           [(e/make-event :plus {:n 4})
+            (e/make-event :inc)]))
+    (e/send sys :inc-n {:n 2})
+    (is (= @(:state sys)
+           {:counter 7}))
+    (is (= @(:event-log sys)
+           [(e/make-event :plus {:n 4})
+            (e/make-event :inc)
+            (e/make-event :inc-n {:n 2})
+            (e/make-event :inc)
+            (e/make-event :inc)]))))
 
 (deftest query
   (let [sys (e/make-system
@@ -36,22 +50,27 @@
              :queries {:counter counter-query})
         counter (e/query sys [:counter])]
     (is (= 0 @counter))
-    (e/handle sys [:inc])
+    (e/send sys :inc)
     (is (= 1 @counter))))
 
 (defn counter-component [sys]
   (let [counter (e/query sys [:counter])]
     (fn []
-      [:p "Count: " @counter])))
+      [:p "Counter: " @counter])))
 
 (defn counter-system []
   (let [sys (e/make-system
              :init-state {:counter 0}
              :handlers {:tick inc-handler}
-             :queries {:counter counter-query})]
-    (js/setInterval #(e/handle sys [:tick])
-                    1000)
-    [counter-component sys]))
+             :queries {:counter counter-query})
+        timer (js/setInterval #(do (e/send sys :tick))
+                              1000)
+        wrapped-counter (with-meta
+                          counter-component
+                          {:component-will-unmount (fn []
+                                                     (js/clearInterval timer))})]
+
+    [wrapped-counter sys]))
 
 (defcard-rg counter
   counter-system)
