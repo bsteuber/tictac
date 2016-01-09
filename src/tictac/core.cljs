@@ -10,7 +10,7 @@
 
 (defcard-doc
   "# Tic Tac Toe
-   Happy hacking!")
+   Happy hacking! Test card...")
 
 ;; Logic
 ;; Hier kommt side-effect-freie Logik hin
