@@ -1,5 +1,6 @@
 (ns tictac.core
   (:require
+   [cljs.test :refer-macros [is]]
    [devcards.core :refer-macros [defcard-rg
                                  defcard-doc
                                  deftest
@@ -10,28 +11,12 @@
 
 (defcard-doc
   "# Tic Tac Toe
-   Happy hacking! Test card...")
-
-;; Logic
-;; Hier kommt side-effect-freie Logik hin
-
-
-;; State
-;; Hier wird der app-state verwaltet
-
-
-;; Components
-;; Hier definieren wir reagent-components
-
-
-;; Tests
-;; Platz für ein paar Unit tests
-
-
-;; Cards
-;; Hier die devcards
+   Happy hacking!")
 
 (defcard-rg hallo
   [:p "Hallo Welt"])
+
+(deftest example
+  (is (= 3 (+ 1 2))))
 
 (start-devcard-ui!)
