@@ -17,8 +17,7 @@
 
   :source-paths ["src"]
 
-  :cljsbuild {
-              :builds [{:id "devcards"
+  :cljsbuild {:builds [{:id "devcards"
                         :source-paths ["src"]
                         :figwheel { :devcards true } ;; <- note this
                         :compiler { :main       "tictac.core"
@@ -39,6 +38,12 @@
                         :compiler {:main       "tictac.core"
                                    :asset-path "js/compiled/out"
                                    :output-to  "resources/public/js/compiled/tictac.js"
+                                   :optimizations :advanced}}
+                       {:id "hostedcards"
+                        :source-paths ["src"]
+                        :compiler {:main "tictac.core"
+                                   :devcards true
+                                   :asset-path "js/compiled/out"
+                                   :output-to  "resources/public/js/compiled/tictac.js"
                                    :optimizations :advanced}}]}
-
   :figwheel { :css-dirs ["resources/public/css"] })

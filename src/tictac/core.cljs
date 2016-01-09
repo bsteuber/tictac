@@ -1,9 +1,10 @@
 (ns tictac.core
   (:require
-   [reagent.core :as r])
-  (:require-macros
-   [devcards.core :refer [defcard-rg defcard-doc deftest]]
-   [cljs.test :refer [is]]))
+   [devcards.core :refer-macros [defcard-rg
+                                 defcard-doc
+                                 deftest
+                                 start-devcard-ui!]]
+   [reagent.core :as r]))
 
 (enable-console-print!)
 
@@ -32,3 +33,5 @@
 
 (defcard-rg hallo
   [:p "Hallo Welt"])
+
+(start-devcard-ui!)
