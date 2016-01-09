@@ -17,6 +17,7 @@
   [:p "Hallo Welt"])
 
 (deftest example
-  (is (= 3 (+ 1 2))))
+  (is (= 3 (+ 1 2)))
+  (is (= 4 (+ 1 1))))
 
 (start-devcard-ui!)
